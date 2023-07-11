@@ -222,7 +222,8 @@ class Thankyou extends StatelessWidget {
                     ),
                     InkWell(
                       onTap: () {
-                        Navigator.pushNamed(context, '/home');
+                        Navigator.of(context).pushNamedAndRemoveUntil(
+                            '/home', ModalRoute.withName('/login'));
                       },
                       child: Column(
                         children: [

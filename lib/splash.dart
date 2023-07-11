@@ -18,7 +18,7 @@ class _SplashState extends State<Splash> {
         Duration(
           seconds: 3,
         ), () {
-      Navigator.pushNamed(context, '/login');
+      Navigator.pushReplacementNamed(context, '/login');
     });
   }
 

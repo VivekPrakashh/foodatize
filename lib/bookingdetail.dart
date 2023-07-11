@@ -10,42 +10,53 @@ class Bookingdetails extends StatelessWidget {
     return Scaffold(
         backgroundColor: Color(0xffF5F5F5),
         appBar: AppBar(
-            titleSpacing: -5,
-            automaticallyImplyLeading: false,
-            leading: Image(
-              image: AssetImage(
-                'assets/splash3.png',
-              ),
-              fit: BoxFit.cover,
-            ),
-            title: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.center,
+            titleSpacing: -10,
+            leading: InkWell(
+                onTap: () {
+                  Navigator.pop(context);
+                },
+                child: Icon(Icons.arrow_back_ios)),
+            iconTheme: IconThemeData(color: Colors.black),
+            title: Row(
               children: [
-                Row(
+                Image(
+                  image: AssetImage(
+                    'assets/XYZ.png',
+                  ),
+                ),
+                SizedBox(
+                  width: 7,
+                ),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text(
-                      'Food',
-                      style: TextStyle(
-                          fontSize: 16,
-                          color: Colors.red,
-                          fontWeight: FontWeight.bold),
+                    Row(
+                      children: [
+                        Text(
+                          'Food',
+                          style: TextStyle(
+                              fontSize: 16,
+                              color: Colors.red,
+                              fontWeight: FontWeight.bold),
+                        ),
+                        Text(
+                          'atize',
+                          style: TextStyle(
+                              fontSize: 16,
+                              color: Colors.black,
+                              fontWeight: FontWeight.bold),
+                        ),
+                      ],
                     ),
                     Text(
-                      'atize',
+                      'by EP Group',
                       style: TextStyle(
-                          fontSize: 16,
-                          color: Colors.black,
-                          fontWeight: FontWeight.bold),
+                        fontSize: 12,
+                        color: Color(0xff4A4A4A),
+                      ),
                     ),
                   ],
-                ),
-                Text(
-                  'by EP Group',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Color(0xff4A4A4A),
-                  ),
                 ),
               ],
             ),

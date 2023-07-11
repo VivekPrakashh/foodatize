@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter/src/widgets/placeholder.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class Accountdetail extends StatefulWidget {
   const Accountdetail({super.key});
@@ -13,11 +14,16 @@ class _AccountdetailState extends State<Accountdetail> {
   TextEditingController name = TextEditingController();
   TextEditingController phone = TextEditingController();
   TextEditingController email = TextEditingController();
+  bool changed = false;
+  bool _isEnable = false;
+  FocusNode focusNode1 = FocusNode();
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
     name.text = "Mithun Das";
+    phone.text = "9097742315";
+    email.text = "mithum@cybertize.com";
   }
 
   @override
@@ -107,13 +113,36 @@ class _AccountdetailState extends State<Accountdetail> {
                                 style: TextStyle(
                                     fontSize: 16, fontWeight: FontWeight.bold),
                               ),
-                              Text(
-                                'Edit',
-                                style: TextStyle(
-                                    decoration: TextDecoration.underline,
-                                    color: Color(0xff5C5C5C),
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold),
+                              InkWell(
+                                onTap: () {
+                                  setState(() {
+                                    changed = true;
+                                    _isEnable = true;
+                                  });
+                                  Future.delayed(Duration(milliseconds: 200),
+                                      () {
+                                    FocusScope.of(context)
+                                        .requestFocus(focusNode1);
+                                  });
+                                },
+                                child: Column(
+                                  children: [
+                                    Text(
+                                      'Edit',
+                                      style: TextStyle(
+                                          color: Color(0xff5C5C5C),
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold),
+                                    ),
+                                    Container(
+                                      height: 1.0,
+                                      width: 30,
+                                      decoration: BoxDecoration(
+                                        color: Color(0xff5C5C5C),
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
                             ],
                           ),
@@ -141,7 +170,9 @@ class _AccountdetailState extends State<Accountdetail> {
                                 SizedBox(
                                   height: 30,
                                   child: TextField(
+                                    focusNode: focusNode1,
                                     controller: name,
+                                    enabled: _isEnable,
                                     style: TextStyle(
                                         color: Color(0xffE9923E),
                                         fontWeight: FontWeight.bold),
@@ -180,6 +211,8 @@ class _AccountdetailState extends State<Accountdetail> {
                                   height: 30,
                                   child: TextField(
                                     controller: phone,
+                                    enabled: _isEnable,
+                                    keyboardType: TextInputType.number,
                                     style: TextStyle(
                                         color: Color(0xffE9923E),
                                         fontWeight: FontWeight.bold),
@@ -218,6 +251,7 @@ class _AccountdetailState extends State<Accountdetail> {
                                   height: 30,
                                   child: TextField(
                                     controller: email,
+                                    enabled: _isEnable,
                                     style: TextStyle(
                                         color: Color(0xffE9923E),
                                         fontWeight: FontWeight.bold),
@@ -235,14 +269,36 @@ class _AccountdetailState extends State<Accountdetail> {
                           ),
                           InkWell(
                             onTap: () {
-                              Navigator.pushNamed(context, '/otp2');
+                              if (name.text == "") {
+                                Fluttertoast.showToast(
+                                  msg: "Please enter the name",
+                                );
+                                return;
+                              } else if (phone.text.length != 10 ||
+                                  phone.text == "") {
+                                Fluttertoast.showToast(
+                                  msg: "Please enter valid phone number",
+                                );
+                                return;
+                              } else if (email.text == "") {
+                                Fluttertoast.showToast(
+                                  msg: "Please enter the email",
+                                );
+                              } else if (changed == true) {
+                                Navigator.pushNamed(context, '/otp2');
+                              } else {
+                                return;
+                              }
                             },
                             child: Container(
                               height: 55,
                               width: double.infinity,
                               decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(10),
-                                  color: Color(0xff23AF00)),
+                                borderRadius: BorderRadius.circular(10),
+                                color: changed == true
+                                    ? Color(0xff23AF00)
+                                    : Color.fromARGB(255, 164, 184, 159),
+                              ),
                               child: Align(
                                   alignment: Alignment.center,
                                   child: Text(

@@ -31,7 +31,7 @@ class MyApp extends StatelessWidget {
           '/splash': (context) => const Splash(),
           '/login': (context) => const Login(),
           '/otp': (context) => const Otp(),
-           '/otp2': (context) => const Otp2(),
+          '/otp2': (context) => const Otp2(),
           '/signup': (context) => const Signup(),
           '/home': (context) => const Home(),
           '/cart': (context) => const Cart(),

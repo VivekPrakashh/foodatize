@@ -1,10 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter/src/widgets/placeholder.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
-class Signup extends StatelessWidget {
+class Signup extends StatefulWidget {
   const Signup({super.key});
 
+  @override
+  State<Signup> createState() => _SignupState();
+}
+
+class _SignupState extends State<Signup> {
+  TextEditingController name = TextEditingController();
+  TextEditingController email = TextEditingController();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -100,12 +108,13 @@ class Signup extends StatelessWidget {
             Container(
               height: 40,
               width: double.infinity,
-              padding: EdgeInsets.all(10),
+              padding: EdgeInsets.symmetric(horizontal: 10, vertical: 6),
               decoration: BoxDecoration(
                 border: Border.all(color: Color(0xff23AF00), width: 0.9),
                 color: Colors.white,
               ),
               child: TextField(
+                controller: name,
                 decoration: InputDecoration(
                   border: InputBorder.none,
                 ),
@@ -127,12 +136,13 @@ class Signup extends StatelessWidget {
             Container(
               height: 40,
               width: double.infinity,
-              padding: EdgeInsets.all(10),
+              padding: EdgeInsets.symmetric(horizontal: 10, vertical: 6),
               decoration: BoxDecoration(
                 border: Border.all(color: Color(0xff23AF00), width: 0.9),
                 color: Colors.white,
               ),
               child: TextField(
+                controller: email,
                 decoration: InputDecoration(
                   border: InputBorder.none,
                 ),
@@ -143,7 +153,19 @@ class Signup extends StatelessWidget {
             ),
             InkWell(
               onTap: () {
-                Navigator.pushNamed(context, '/home');
+                if (name.text == "") {
+                  Fluttertoast.showToast(
+                    msg: "Please enter the name",
+                  );
+                  return;
+                } else if (email.text == "") {
+                  Fluttertoast.showToast(
+                    msg: "Please enter the email",
+                  );
+                  return;
+                } else {
+                  Navigator.pushNamed(context, '/home');
+                }
               },
               child: Container(
                 height: 40,

@@ -105,42 +105,44 @@ class Home extends StatelessWidget {
             ]),
         body: Padding(
           padding: const EdgeInsets.all(20),
-          child: Column(
-            children: [
-              Container(
-                height: 50,
-                width: double.infinity,
-                padding: EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(10),
-                  // boxShadow: [
-                  //   BoxShadow(
-                  //     color: Colors.grey.shade400,
-                  //     offset: const Offset(
-                  //       5.0,
-                  //       5.0,
-                  //     ),
-                  //     blurRadius: 10.0,
-                  //     spreadRadius: 2.0,
-                  //   ),
-                  // ],
-                  color: Colors.white,
-                ),
-                child: TextField(
-                  decoration: InputDecoration(
-                    suffixIcon: Icon(Icons.search),
-                    labelText: 'Search Menu & dishes from the restaurant...',
-                    border: InputBorder.none,
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                Container(
+                  height: 50,
+                  width: double.infinity,
+                  padding: EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10),
+                    // boxShadow: [
+                    //   BoxShadow(
+                    //     color: Colors.grey.shade400,
+                    //     offset: const Offset(
+                    //       5.0,
+                    //       5.0,
+                    //     ),
+                    //     blurRadius: 10.0,
+                    //     spreadRadius: 2.0,
+                    //   ),
+                    // ],
+                    color: Colors.white,
+                  ),
+                  child: TextField(
+                    decoration: InputDecoration(
+                      suffixIcon: Icon(Icons.search),
+                      hintText: 'Search Menu & dishes from the restaurant...',
+                      border: InputBorder.none,
+                    ),
                   ),
                 ),
-              ),
-              SizedBox(
-                height: 10,
-              ),
-              Fooditem(),
-              Fooditem(),
-              Fooditem(),
-            ],
+                SizedBox(
+                  height: 10,
+                ),
+                Fooditem(),
+                Fooditem(),
+                Fooditem(),
+              ],
+            ),
           ),
         ),
         bottomNavigationBar: Container(
@@ -262,7 +264,7 @@ class _FooditemState extends State<Fooditem> {
                   children: [
                     isadded == true
                         ? Container(
-                            height: 24,
+                            height: 25,
                             decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(5),
                                 border: Border.all(
@@ -282,8 +284,8 @@ class _FooditemState extends State<Fooditem> {
                                     }
                                   },
                                   child: Container(
-                                      height: 24,
-                                      width: 32,
+                                      height: 25,
+                                      width: 31,
                                       decoration: BoxDecoration(
                                           color: Color(0xff24FF00)),
                                       child: Align(
@@ -295,7 +297,7 @@ class _FooditemState extends State<Fooditem> {
                                           ))),
                                 ),
                                 Container(
-                                  height: 24,
+                                  height: 25,
                                   width: 26,
                                   decoration:
                                       BoxDecoration(color: Colors.white),
@@ -310,8 +312,8 @@ class _FooditemState extends State<Fooditem> {
                                     });
                                   },
                                   child: Container(
-                                    height: 24,
-                                    width: 32,
+                                    height: 25,
+                                    width: 31,
                                     decoration:
                                         BoxDecoration(color: Color(0xff24FF00)),
                                     child: Align(
@@ -336,6 +338,8 @@ class _FooditemState extends State<Fooditem> {
                               height: 25,
                               width: 90,
                               decoration: BoxDecoration(
+                                  border: Border.all(
+                                      color: Color(0xff24FF00), width: 1.0),
                                   borderRadius: BorderRadius.circular(5),
                                   color: Color(0xff24FF00)),
                               child: Align(
@@ -357,6 +361,11 @@ class _FooditemState extends State<Fooditem> {
                       onTap: () {
                         showModalBottomSheet(
                             context: context,
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.only(
+                              topRight: Radius.circular(40.0),
+                              topLeft: Radius.circular(40.0),
+                            )),
                             builder: (BuildContext bc) {
                               return Container(
                                 height:
@@ -381,11 +390,16 @@ class _FooditemState extends State<Fooditem> {
                                             fontSize: 22,
                                           ),
                                         ),
-                                        Image(
-                                          image: AssetImage(
-                                            'assets/xmark.png',
+                                        InkWell(
+                                          onTap: () {
+                                            Navigator.pop(context);
+                                          },
+                                          child: Image(
+                                            image: AssetImage(
+                                              'assets/xmark.png',
+                                            ),
+                                            fit: BoxFit.cover,
                                           ),
-                                          fit: BoxFit.cover,
                                         ),
                                       ],
                                     ),
@@ -408,13 +422,23 @@ class _FooditemState extends State<Fooditem> {
                               );
                             });
                       },
-                      child: Text(
-                        'View details',
-                        style: TextStyle(
-                          decoration: TextDecoration.underline,
-                          color: Color(0xff4E4E4E),
-                          fontSize: 12,
-                        ),
+                      child: Column(
+                        children: [
+                          Text(
+                            'View details',
+                            style: TextStyle(
+                              color: Color(0xff4E4E4E),
+                              fontSize: 12,
+                            ),
+                          ),
+                          Container(
+                            height: 1.0,
+                            width: 62,
+                            decoration: BoxDecoration(
+                              color: Color(0xff4E4E4E),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ],

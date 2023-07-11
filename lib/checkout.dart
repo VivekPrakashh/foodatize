@@ -77,13 +77,12 @@ class Checkout extends StatelessWidget {
               ),
               Container(
                 padding: EdgeInsets.all(20),
-                height: 211,
                 width: double.infinity,
                 decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(20)),
                 child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  // mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -175,7 +174,7 @@ class Checkout extends StatelessWidget {
                               fontSize: 17, fontWeight: FontWeight.bold),
                         ),
                         Text(
-                          'Rs. 517',
+                          'Rs. 517.94',
                           style: TextStyle(
                               fontSize: 17,
                               color: Color(0xff4A4A4A),

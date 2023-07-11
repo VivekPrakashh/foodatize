@@ -1,10 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter/src/widgets/placeholder.dart';
+import 'package:pinput/pinput.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
-class Login extends StatelessWidget {
+class Login extends StatefulWidget {
   const Login({super.key});
 
+  @override
+  State<Login> createState() => _LoginState();
+}
+
+class _LoginState extends State<Login> {
+  TextEditingController phone = TextEditingController();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -87,16 +95,20 @@ class Login extends StatelessWidget {
             ),
             Container(
               height: 40,
+              padding: EdgeInsets.symmetric(horizontal: 10, vertical: 6),
               width: double.infinity,
-              padding: EdgeInsets.all(10),
               decoration: BoxDecoration(
                 border: Border.all(color: Color(0xff23AF00), width: 0.9),
                 color: Colors.white,
               ),
               child: TextField(
+                controller: phone,
                 decoration: InputDecoration(
                   border: InputBorder.none,
+                  counterText: "",
                 ),
+                keyboardType: TextInputType.number,
+                maxLength: 10,
               ),
             ),
             SizedBox(
@@ -104,7 +116,16 @@ class Login extends StatelessWidget {
             ),
             InkWell(
               onTap: () {
-                Navigator.pushNamed(context, '/otp');
+                if (phone.text.length != 10 || phone.text.contains(" ")) {
+                  Fluttertoast.showToast(
+                    msg: "Please enter 10 digit mobile number",
+                    backgroundColor: Colors.red,
+                    textColor: Colors.white,
+                  );
+                  return;
+                } else {
+                  Navigator.pushNamed(context, '/otp');
+                }
               },
               child: Container(
                 height: 40,
@@ -126,4 +147,12 @@ class Login extends StatelessWidget {
       ),
     );
   }
+}
+
+String validateMobile(String value) {
+// Indian Mobile number are of 10 digit only
+  if (value.length != 10)
+    return 'Mobile Number must be of 10 digit';
+  else
+    return 'null';
 }
