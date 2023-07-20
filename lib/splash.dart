@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter/src/widgets/placeholder.dart';
+import 'package:foodatize/util/userCred.dart';
 
 class Splash extends StatefulWidget {
   const Splash({super.key});
@@ -18,7 +19,11 @@ class _SplashState extends State<Splash> {
         Duration(
           seconds: 3,
         ), () {
-      Navigator.pushReplacementNamed(context, '/login');
+      if (userCred.isUserLogin()) {
+        Navigator.pushReplacementNamed(context, '/home');
+      } else {
+        Navigator.pushReplacementNamed(context, '/login');
+      }
     });
   }
 

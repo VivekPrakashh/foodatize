@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter/src/widgets/placeholder.dart';
+import 'package:foodatize/Shimmer/shimmer.dart';
 
 class Cart extends StatelessWidget {
   const Cart({super.key});
@@ -64,39 +65,43 @@ class Cart extends StatelessWidget {
             actions: []),
         body: Padding(
           padding: const EdgeInsets.all(20),
-          child:
-              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            SizedBox(
-              height: 10,
-            ),
-            Text(
-              'Cart',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            SizedBox(
-              height: 10,
-            ),
-            Products(),
-            Products(),
-            SizedBox(
-              height: 10,
-            ),
-            Container(
-              height: 55,
-              width: double.infinity,
-              decoration: BoxDecoration(color: Colors.white),
-              child: Align(
-                alignment: Alignment.center,
-                child: Text(
-                  '+ Add more items',
-                  style: TextStyle(
-                      fontSize: 17,
-                      color: Color(0xff666666),
-                      fontWeight: FontWeight.w900),
-                ),
+          child: SingleChildScrollView(
+            child:
+                Column(crossAxisAlignment: CrossAxisAlignment.start,
+                 children: [
+              // Cart_shimmer(),
+              SizedBox(
+                height: 10,
               ),
-            )
-          ]),
+              Text(
+                'Cart',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              SizedBox(
+                height: 10,
+              ),
+              Products(),
+              Products(),
+              SizedBox(
+                height: 10,
+              ),
+              Container(
+                height: 55,
+                width: double.infinity,
+                decoration: BoxDecoration(color: Colors.white),
+                child: Align(
+                  alignment: Alignment.center,
+                  child: Text(
+                    '+ Add more items',
+                    style: TextStyle(
+                        fontSize: 17,
+                        color: Color(0xff666666),
+                        fontWeight: FontWeight.w900),
+                  ),
+                ),
+              )
+            ]),
+          ),
         ),
         bottomNavigationBar: Container(
           padding: EdgeInsets.all(15),

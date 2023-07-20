@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter/src/widgets/placeholder.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:foodatize/API/api.dart';
+import 'package:foodatize/util/userCred.dart';
 import 'package:pinput/pinput.dart';
 
 class Otp extends StatefulWidget {
@@ -23,8 +26,15 @@ class _OtpState extends State<Otp> {
       border: Border.all(color: Color(0xff23AF00), width: 0.9),
     ),
   );
+  TextEditingController otp = TextEditingController();
+
+  bool isLoading = false;
+  bool isOtpLoading = false;
+  String phone = "";
   @override
   Widget build(BuildContext context) {
+    final Map rcvdData = ModalRoute.of(context)!.settings.arguments as Map;
+
     return Scaffold(
       backgroundColor: Color(0xffF5F5F5),
       appBar: AppBar(
@@ -108,6 +118,7 @@ class _OtpState extends State<Otp> {
               height: 30,
             ),
             Pinput(
+              controller: otp,
               length: 5,
               defaultPinTheme: defaultPinTheme,
               autofocus: true,
@@ -142,8 +153,41 @@ class _OtpState extends State<Otp> {
               height: 20,
             ),
             InkWell(
-              onTap: () {
-                Navigator.pushNamed(context, '/signup');
+              onTap: () async {
+                if (otp.text.length != 5 || otp.text.contains(" ")) {
+                  Fluttertoast.showToast(
+                    msg: "Please enter 5 digit OTP",
+                    backgroundColor: Colors.red,
+                    textColor: Colors.white,
+                  );
+                  return;
+                }
+
+                setState(() {
+                  isOtpLoading = true;
+                });
+                Callapi api = Callapi();
+                Map data = await api.checkLoginOtp(
+                    otp: otp.text, phone: rcvdData["phone_number"]);
+                if (data['status'] == 200) {
+                  userCred.addUserId(data["data"][0]["id"].toString());
+
+                  Future.delayed(const Duration(seconds: 0), () {
+                    if (rcvdData["user_type"] == "old") {
+                      Navigator.pushReplacementNamed(context, "/home");
+                    } else {
+                      Navigator.pushReplacementNamed(context, "/signup");
+                    }
+                  });
+
+                  Fluttertoast.showToast(msg: data['massage']);
+                } else {
+                  Fluttertoast.showToast(msg: data['error']);
+
+                  setState(() {
+                    isOtpLoading = false;
+                  });
+                }
               },
               child: Container(
                 height: 40,

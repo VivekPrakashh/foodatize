@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter/src/widgets/placeholder.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:foodatize/API/api.dart';
 
 class Signup extends StatefulWidget {
   const Signup({super.key});
@@ -152,7 +153,7 @@ class _SignupState extends State<Signup> {
               height: 30,
             ),
             InkWell(
-              onTap: () {
+              onTap: () async {
                 if (name.text == "") {
                   Fluttertoast.showToast(
                     msg: "Please enter the name",
@@ -163,8 +164,20 @@ class _SignupState extends State<Signup> {
                     msg: "Please enter the email",
                   );
                   return;
+                }
+                Callapi api = Callapi();
+                Map data =
+                    await api.saveinfo(name: name.text, email: email.text);
+                if (data['status'] == 200) {
+                  // userCred.addUserId('${data['userId']}');
+                  //  userCred.ad('${data['userId']}');
+                  Future.delayed(const Duration(seconds: 0), () {
+                    Navigator.pushReplacementNamed(context, "/home");
+                  });
+
+                  Fluttertoast.showToast(msg: data['message']);
                 } else {
-                  Navigator.pushNamed(context, '/home');
+                  Fluttertoast.showToast(msg: data['error']);
                 }
               },
               child: Container(

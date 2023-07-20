@@ -1,11 +1,31 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter/src/widgets/placeholder.dart';
+import 'package:foodatize/Bloc/homebloc.dart';
+import 'package:foodatize/Modal/homemodal.dart';
+import 'package:foodatize/util/userCred.dart';
+import 'package:shimmer/shimmer.dart';
 
-class Home extends StatelessWidget {
+import 'Shimmer/shimmer.dart';
+
+class Home extends StatefulWidget {
   const Home({super.key});
 
   @override
+  State<Home> createState() => _HomeState();
+}
+
+class _HomeState extends State<Home> {
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    homebloc.fetchproduct();
+  }
+
+  @override
+  bool _enabled = true;
+
   Widget build(BuildContext context) {
     return Scaffold(
         backgroundColor: Color(0xffF5F5F5),
@@ -108,6 +128,7 @@ class Home extends StatelessWidget {
           child: SingleChildScrollView(
             child: Column(
               children: [
+                // Home_shimmer(),
                 Container(
                   height: 50,
                   width: double.infinity,
@@ -135,12 +156,20 @@ class Home extends StatelessWidget {
                     ),
                   ),
                 ),
+
                 SizedBox(
                   height: 10,
                 ),
-                Fooditem(),
-                Fooditem(),
-                Fooditem(),
+                StreamBuilder<Product>(
+                    stream: homebloc.getProduct.stream,
+                    builder: (context, snapshot) {
+                      if (!snapshot.hasData) return CircularProgressIndicator();
+                      return Column(
+                          children: List.generate(
+                        snapshot.data!.newlist.length,
+                        (index) => Fooditem(),
+                      ));
+                    }),
               ],
             ),
           ),

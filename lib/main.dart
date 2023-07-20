@@ -14,8 +14,11 @@ import 'package:foodatize/otp2.dart';
 import 'package:foodatize/signup.dart';
 import 'package:foodatize/splash.dart';
 import 'package:foodatize/thankyou.dart';
+import 'package:foodatize/util/storage.dart';
 
-void main() {
+void main()async {
+   WidgetsFlutterBinding.ensureInitialized();
+  await StorageUtil.getInstance();
   runApp(const MyApp());
 }
 

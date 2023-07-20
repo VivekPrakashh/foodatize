@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter/src/widgets/placeholder.dart';
+import 'package:foodatize/API/api.dart';
 import 'package:pinput/pinput.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
@@ -13,6 +14,7 @@ class Login extends StatefulWidget {
 
 class _LoginState extends State<Login> {
   TextEditingController phone = TextEditingController();
+  bool isLoading = false;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -115,7 +117,7 @@ class _LoginState extends State<Login> {
               height: 30,
             ),
             InkWell(
-              onTap: () {
+              onTap: () async {
                 if (phone.text.length != 10 || phone.text.contains(" ")) {
                   Fluttertoast.showToast(
                     msg: "Please enter 10 digit mobile number",
@@ -123,8 +125,42 @@ class _LoginState extends State<Login> {
                     textColor: Colors.white,
                   );
                   return;
+                }
+                setState(() {
+                  isLoading = true;
+                });
+                Callapi callapi = Callapi();
+
+                Map data = await callapi.doLogin(
+                  phone: phone.text,
+                );
+
+                if (data['status'] == 200) {
+                  setState(() {
+                    isLoading = false;
+                  });
+                  Fluttertoast.showToast(
+                    msg: "${data['massage']}",
+                  );
+                  Navigator.pushNamed(context, '/otp', arguments: {
+                    "phone_number": phone.text,
+                    "user_type": data['user_type']
+                  });
                 } else {
-                  Navigator.pushNamed(context, '/otp');
+                  setState(() {
+                    isLoading = false;
+                  });
+                  Fluttertoast.showToast(
+                      msg: "${data['error']}",
+                      toastLength: Toast.LENGTH_SHORT,
+                      gravity: ToastGravity.BOTTOM,
+                      timeInSecForIosWeb: 1,
+                      backgroundColor: Colors.red,
+                      textColor: Colors.white,
+                      fontSize: 16.0);
+                  setState(() {
+                    isLoading = false;
+                  });
                 }
               },
               child: Container(
