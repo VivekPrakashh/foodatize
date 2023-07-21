@@ -16,6 +16,20 @@ class HomeBloc {
       print(e);
     }
   }
+
+  final BehaviorSubject<SearchModal> _liveSearch =
+      BehaviorSubject<SearchModal>();
+  BehaviorSubject<SearchModal> get getSearchProduct => _liveSearch;
+  searchProduct(s) async {
+    try {
+      SearchModal homeSlider = await _homeRepo.searchProduct(s);
+      // print(homeSlider.imgs!.length);
+
+      _liveSearch.add(homeSlider);
+    } catch (e) {
+      print(e);
+    }
+  }
 }
 
 final homebloc = HomeBloc();

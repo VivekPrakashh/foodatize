@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter/src/widgets/placeholder.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:foodatize/API/homeapi.dart';
 import 'package:foodatize/Bloc/homebloc.dart';
 import 'package:foodatize/Modal/homemodal.dart';
 import 'package:foodatize/util/userCred.dart';
@@ -23,6 +25,7 @@ class _HomeState extends State<Home> {
     homebloc.fetchproduct();
   }
 
+  bool isSearch = false;
   @override
   bool _enabled = true;
 
@@ -135,20 +138,21 @@ class _HomeState extends State<Home> {
                   padding: EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(10),
-                    // boxShadow: [
-                    //   BoxShadow(
-                    //     color: Colors.grey.shade400,
-                    //     offset: const Offset(
-                    //       5.0,
-                    //       5.0,
-                    //     ),
-                    //     blurRadius: 10.0,
-                    //     spreadRadius: 2.0,
-                    //   ),
-                    // ],
                     color: Colors.white,
                   ),
                   child: TextField(
+                    onChanged: (value) {
+                      if (value.length > 1) {
+                        homebloc.searchProduct(value);
+                        setState(() {
+                          isSearch = true;
+                        });
+                      } else {
+                        setState(() {
+                          isSearch = false;
+                        });
+                      }
+                    },
                     decoration: InputDecoration(
                       suffixIcon: Icon(Icons.search),
                       hintText: 'Search Menu & dishes from the restaurant...',
@@ -160,16 +164,47 @@ class _HomeState extends State<Home> {
                 SizedBox(
                   height: 10,
                 ),
-                StreamBuilder<Product>(
-                    stream: homebloc.getProduct.stream,
-                    builder: (context, snapshot) {
-                      if (!snapshot.hasData) return CircularProgressIndicator();
-                      return Column(
-                          children: List.generate(
-                        snapshot.data!.newlist.length,
-                        (index) => Fooditem(),
-                      ));
-                    }),
+                isSearch == true
+                    ? StreamBuilder<SearchModal>(
+                        stream: homebloc.getSearchProduct.stream,
+                        builder: (context, snapshot) {
+                          if (!snapshot.hasData) return Home_shimmer();
+                          return Column(
+                              children: List.generate(
+                            snapshot.data!.newlist.length,
+                            (index) => Fooditem(
+                              id: snapshot.data!.newlist[index].id,
+                              name: snapshot.data!.newlist[index].name,
+                              image: snapshot.data!.newlist[index].image,
+                              pieces: snapshot.data!.newlist[index].pieces,
+                              price: snapshot.data!.newlist[index].price,
+                              quantity: snapshot.data!.newlist[index].quantity,
+                              description:
+                                  snapshot.data!.newlist[index].description,
+                              status: snapshot.data!.newlist[index].status,
+                            ),
+                          ));
+                        })
+                    : StreamBuilder<Product>(
+                        stream: homebloc.getProduct.stream,
+                        builder: (context, snapshot) {
+                          if (!snapshot.hasData) return Home_shimmer();
+                          return Column(
+                              children: List.generate(
+                            snapshot.data!.newlist.length,
+                            (index) => Fooditem(
+                              id: snapshot.data!.newlist[index].id,
+                              name: snapshot.data!.newlist[index].name,
+                              image: snapshot.data!.newlist[index].image,
+                              pieces: snapshot.data!.newlist[index].pieces,
+                              price: snapshot.data!.newlist[index].price,
+                              quantity: snapshot.data!.newlist[index].quantity,
+                              description:
+                                  snapshot.data!.newlist[index].description,
+                              status: snapshot.data!.newlist[index].status,
+                            ),
+                          ));
+                        }),
               ],
             ),
           ),
@@ -221,9 +256,28 @@ class _HomeState extends State<Home> {
 }
 
 class Fooditem extends StatefulWidget {
-  const Fooditem({
-    super.key,
-  });
+  Fooditem(
+      {super.key,
+      this.id,
+      this.name,
+      this.image,
+      this.pieces,
+      this.price,
+      this.quantity,
+      this.description,
+      this.status,
+      this.created_at,
+      this.updated_at});
+  int? id;
+  String? name;
+  String? image;
+  String? pieces;
+  int? price;
+  int? quantity;
+  String? description;
+  String? status;
+  String? created_at;
+  String? updated_at;
 
   @override
   State<Fooditem> createState() => _FooditemState();
@@ -232,6 +286,7 @@ class Fooditem extends StatefulWidget {
 class _FooditemState extends State<Fooditem> {
   bool isadded = false;
   int count = 1;
+  bool isLoading = false;
 
   @override
   Widget build(BuildContext context) {
@@ -250,10 +305,8 @@ class _FooditemState extends State<Fooditem> {
             Container(
               height: 78,
               width: 98,
-              child: Image(
-                image: AssetImage(
-                  'assets/home.png',
-                ),
+              child: Image.network(
+                '${widget.image}',
                 fit: BoxFit.cover,
               ),
             ),
@@ -265,7 +318,7 @@ class _FooditemState extends State<Fooditem> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'Chicken Chilli - Boneless',
+                  '${widget.name}',
                   style: TextStyle(
                       fontSize: 16,
                       color: Color(0xff4D4D4D),
@@ -274,14 +327,14 @@ class _FooditemState extends State<Fooditem> {
                 Row(
                   children: [
                     Text(
-                      'Rs. 210 /',
+                      'Rs. ${widget.price} /',
                       style: TextStyle(
                           fontSize: 13,
                           color: Color(0xff2E2E2E),
                           fontWeight: FontWeight.bold),
                     ),
                     Text(
-                      '12 Pieces',
+                      '${widget.pieces} Pieces',
                       style: TextStyle(
                           fontSize: 13,
                           color: Color(0xff616161),
@@ -358,10 +411,42 @@ class _FooditemState extends State<Fooditem> {
                             ),
                           )
                         : InkWell(
-                            onTap: () {
+                            onTap: () async {
                               setState(() {
                                 isadded = true;
                               });
+                              HomeApi callapi = HomeApi();
+
+                              Map data = await callapi.fetchCart();
+
+                              if (data['status'] == 200) {
+                                setState(() {
+                                  isLoading = false;
+                                });
+                                Fluttertoast.showToast(
+                                  msg: "${data['massage']}",
+                                );
+                                Navigator.pushNamed(context, '/cart',
+                                    arguments: {
+                                      "product_id": data['product_id'],
+                                      "user_id": data['user_id']
+                                    });
+                              } else {
+                                setState(() {
+                                  isLoading = false;
+                                });
+                                Fluttertoast.showToast(
+                                    msg: "${data['error']}",
+                                    toastLength: Toast.LENGTH_SHORT,
+                                    gravity: ToastGravity.BOTTOM,
+                                    timeInSecForIosWeb: 1,
+                                    backgroundColor: Colors.red,
+                                    textColor: Colors.white,
+                                    fontSize: 16.0);
+                                setState(() {
+                                  isLoading = false;
+                                });
+                              }
                             },
                             child: Container(
                               height: 25,
@@ -412,7 +497,7 @@ class _FooditemState extends State<Fooditem> {
                                           MainAxisAlignment.spaceBetween,
                                       children: [
                                         Text(
-                                          'Chicken Chilli - Boneless',
+                                          '${widget.name}',
                                           style: TextStyle(
                                             color: Color(0xff4D4D4D),
                                             fontWeight: FontWeight.bold,
@@ -438,7 +523,7 @@ class _FooditemState extends State<Fooditem> {
                                     Align(
                                       alignment: Alignment.centerLeft,
                                       child: Text(
-                                        'One plate Chicken Chilli Boneless\nwith 12 pcs of chicken hot fried.\nFrshly brewed and Serverd',
+                                        '${widget.description}',
                                         style: TextStyle(
                                           fontSize: 18,
                                           color: Colors.black,

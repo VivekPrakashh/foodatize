@@ -11,4 +11,13 @@ class HomeRepo {
     var jsonResponse = jsonDecode(response.body) as Map;
     return Product(jsonResponse);
   }
+
+  Future<SearchModal> searchProduct(s) async {
+    final response = await homeApi.searchProduct(s);
+    var jsonResponse = jsonDecode(response.body) as Map;
+    
+    return SearchModal(jsonResponse);
+  }
+
+  
 }
