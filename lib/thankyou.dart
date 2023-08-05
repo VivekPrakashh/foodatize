@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter/src/widgets/placeholder.dart';
+import 'package:foodatize/Shimmer/shimmer.dart';
 
 class Thankyou extends StatelessWidget {
   const Thankyou({super.key});
 
   @override
   Widget build(BuildContext context) {
+    Thankyou_Shimmer();
     return Scaffold(
         backgroundColor: Color(0xffF5F5F5),
         appBar: AppBar(

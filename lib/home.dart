@@ -6,6 +6,7 @@ import 'package:foodatize/API/homeapi.dart';
 import 'package:foodatize/Bloc/homebloc.dart';
 import 'package:foodatize/Modal/homemodal.dart';
 import 'package:foodatize/util/userCred.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:shimmer/shimmer.dart';
 
 import 'Shimmer/shimmer.dart';
@@ -23,6 +24,15 @@ class _HomeState extends State<Home> {
     // TODO: implement initState
     super.initState();
     homebloc.fetchproduct();
+    getlocation();
+    homebloc.getToCart();
+
+  }
+
+  getlocation() async {
+    Position location = await _determinePosition();
+    print(location);
+    userCred.addLatLng(lat: location.latitude, lng: location.longitude);
   }
 
   bool isSearch = false;
@@ -209,49 +219,95 @@ class _HomeState extends State<Home> {
             ),
           ),
         ),
-        bottomNavigationBar: Container(
-          padding: EdgeInsets.all(15),
-          height: 71,
-          width: double.infinity,
-          decoration: BoxDecoration(color: Color(0xff23AF00)),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Column(
-                // mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.start,
+        bottomNavigationBar: StreamBuilder<GetcartModel>(
+            stream: homebloc.getTooCart.stream,
+            builder: (context, snapshot) {
+              if (!snapshot.hasData)
+                return Container(
+                  height: 0,
+                );
+              return Container(
+              padding: EdgeInsets.all(15),
+              height: 71,
+              width: double.infinity,
+              decoration: BoxDecoration(color: Color(0xff23AF00)),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
-                    '1 Item | Rs. 340',
-                    style: TextStyle(
-                        fontSize: 16,
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold),
+                  Column(
+                    // mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                         '${snapshot.data!.newlist.length} Item | Rs. ${snapshot.data!.amount}',
+                        style: TextStyle(
+                            fontSize: 16,
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold),
+                      ),
+                      Text(
+                        'Extra charges may apply',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.white,
+                        ),
+                      )
+                    ],
                   ),
-                  Text(
-                    'Extra charges may apply',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Colors.white,
+                  InkWell(
+                    onTap: () {
+                      Navigator.pushNamed(context, '/cart');
+                    },
+                    child: Text(
+                      'View Cart',
+                      style: TextStyle(
+                          fontSize: 17,
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold),
                     ),
-                  )
+                  ),
                 ],
               ),
-              InkWell(
-                onTap: () {
-                  Navigator.pushNamed(context, '/cart');
-                },
-                child: Text(
-                  'View Cart',
-                  style: TextStyle(
-                      fontSize: 17,
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold),
-                ),
-              ),
-            ],
-          ),
+            );
+          }
         ));
+  }
+
+  Future<Position> _determinePosition() async {
+    bool serviceEnabled;
+    LocationPermission permission;
+
+    // Test if location services are enabled.
+    serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      // Location services are not enabled don't continue
+      // accessing the position and request users of the
+      // App to enable the location services.
+      return Future.error('Location services are disabled.');
+    }
+
+    permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        // Permissions are denied, next time you could try
+        // requesting permissions again (this is also where
+        // Android's shouldShowRequestPermissionRationale
+        // returned true. According to Android guidelines
+        // your App should show an explanatory UI now.
+        return Future.error('Location permissions are denied');
+      }
+    }
+
+    if (permission == LocationPermission.deniedForever) {
+      // Permissions are denied forever, handle appropriately.
+      return Future.error(
+          'Location permissions are permanently denied, we cannot request permissions.');
+    }
+
+    // When we reach here, permissions are granted and we can
+    // continue accessing the position of the device.
+    return await Geolocator.getCurrentPosition();
   }
 }
 
@@ -275,7 +331,7 @@ class Fooditem extends StatefulWidget {
   int? price;
   int? quantity;
   String? description;
-  String? status;
+  dynamic? status;
   String? created_at;
   String? updated_at;
 
@@ -290,6 +346,8 @@ class _FooditemState extends State<Fooditem> {
 
   @override
   Widget build(BuildContext context) {
+    homebloc.getToCart();
+
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: Container(
@@ -355,13 +413,42 @@ class _FooditemState extends State<Fooditem> {
                             child: Row(
                               children: [
                                 InkWell(
-                                  onTap: () {
+                                  onTap: () async {
                                     if (count == 1) {
                                       isadded = false;
                                       setState(() {});
                                     } else {
                                       setState(() {
                                         count = count - 1;
+                                      });
+                                    }
+                                    HomeApi callapi = HomeApi();
+
+                                    Map data = await callapi.substractToCart(
+                                        product_id: widget.id.toString(),
+                                        mode: "subtract");
+
+                                    if (data['status'] == 200) {
+                                      setState(() {
+                                        isLoading = false;
+                                      });
+                                      Fluttertoast.showToast(
+                                        msg: "${data['message']}",
+                                      );
+                                    } else {
+                                      setState(() {
+                                        isLoading = false;
+                                      });
+                                      Fluttertoast.showToast(
+                                          msg: "${data['error']}",
+                                          toastLength: Toast.LENGTH_SHORT,
+                                          gravity: ToastGravity.BOTTOM,
+                                          timeInSecForIosWeb: 1,
+                                          backgroundColor: Colors.red,
+                                          textColor: Colors.white,
+                                          fontSize: 16.0);
+                                      setState(() {
+                                        isLoading = false;
                                       });
                                     }
                                   },
@@ -388,10 +475,38 @@ class _FooditemState extends State<Fooditem> {
                                       child: Text("$count")),
                                 ),
                                 InkWell(
-                                  onTap: () {
+                                  onTap: () async {
                                     setState(() {
                                       count = count + 1;
                                     });
+                                    HomeApi callapi = HomeApi();
+
+                                    Map data = await callapi.addtoCart(
+                                        product_id: widget.id.toString());
+
+                                    if (data['status'] == 200) {
+                                      setState(() {
+                                        isLoading = false;
+                                      });
+                                      Fluttertoast.showToast(
+                                        msg: "${data['message']}",
+                                      );
+                                    } else {
+                                      setState(() {
+                                        isLoading = false;
+                                      });
+                                      Fluttertoast.showToast(
+                                          msg: "${data['error']}",
+                                          toastLength: Toast.LENGTH_SHORT,
+                                          gravity: ToastGravity.BOTTOM,
+                                          timeInSecForIosWeb: 1,
+                                          backgroundColor: Colors.red,
+                                          textColor: Colors.white,
+                                          fontSize: 16.0);
+                                      setState(() {
+                                        isLoading = false;
+                                      });
+                                    }
                                   },
                                   child: Container(
                                     height: 25,
@@ -417,20 +532,16 @@ class _FooditemState extends State<Fooditem> {
                               });
                               HomeApi callapi = HomeApi();
 
-                              Map data = await callapi.fetchCart();
+                              Map data = await callapi.addtoCart(
+                                  product_id: widget.id.toString());
 
                               if (data['status'] == 200) {
                                 setState(() {
                                   isLoading = false;
                                 });
                                 Fluttertoast.showToast(
-                                  msg: "${data['massage']}",
+                                  msg: "${data['message']}",
                                 );
-                                Navigator.pushNamed(context, '/cart',
-                                    arguments: {
-                                      "product_id": data['product_id'],
-                                      "user_id": data['user_id']
-                                    });
                               } else {
                                 setState(() {
                                   isLoading = false;

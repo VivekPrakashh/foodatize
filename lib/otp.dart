@@ -170,12 +170,18 @@ class _OtpState extends State<Otp> {
                 Map data = await api.checkLoginOtp(
                     otp: otp.text, phone: rcvdData["phone_number"]);
                 if (data['status'] == 200) {
+                  setState(() {
+                    isLoading = false;
+                  });
                   userCred.addUserId(data["data"][0]["id"].toString());
 
                   Future.delayed(const Duration(seconds: 0), () {
                     if (rcvdData["user_type"] == "old") {
                       Navigator.pushReplacementNamed(context, "/home");
                     } else {
+                      setState(() {
+                        isLoading = true;
+                      });
                       Navigator.pushReplacementNamed(context, "/signup");
                     }
                   });
@@ -203,7 +209,23 @@ class _OtpState extends State<Otp> {
                           fontWeight: FontWeight.bold),
                     )),
               ),
-            )
+            ),
+            SizedBox(
+              height: 20,
+            ),
+            isOtpLoading == true
+                ? Align(
+                    alignment: Alignment.center,
+                    child: const SizedBox(
+                      height: 15,
+                      width: 15,
+                      child: CircularProgressIndicator(
+                        color: Color(0xff23AF00),
+                        strokeWidth: 3,
+                      ),
+                    ),
+                  )
+                : Container()
           ],
         ),
       ),

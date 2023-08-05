@@ -5,6 +5,7 @@ import 'package:foodatize/address.dart';
 import 'package:foodatize/bookingdetail.dart';
 import 'package:foodatize/cart.dart';
 import 'package:foodatize/checkout.dart';
+import 'package:foodatize/editaddress.dart';
 import 'package:foodatize/home.dart';
 import 'package:foodatize/login.dart';
 import 'package:foodatize/myaccount.dart';
@@ -16,8 +17,8 @@ import 'package:foodatize/splash.dart';
 import 'package:foodatize/thankyou.dart';
 import 'package:foodatize/util/storage.dart';
 
-void main()async {
-   WidgetsFlutterBinding.ensureInitialized();
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
   await StorageUtil.getInstance();
   runApp(const MyApp());
 }
@@ -40,7 +41,8 @@ class MyApp extends StatelessWidget {
           '/cart': (context) => const Cart(),
           '/address': (context) => const Address(),
           '/addaddress': (context) => const Addaddress(),
-          '/checkout': (context) => const Checkout(),
+            '/editaddress': (context) => const Editaddress(),
+          '/checkout': (context) =>  Checkout(),
           '/thankyou': (context) => const Thankyou(),
           '/orders': (context) => const Orders(),
           '/bookingdetail': (context) => const Bookingdetails(),

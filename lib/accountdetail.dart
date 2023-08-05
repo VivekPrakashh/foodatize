@@ -1,7 +1,11 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter/src/widgets/placeholder.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:foodatize/API/homeapi.dart';
+import 'package:foodatize/Bloc/homebloc.dart';
 
 class Accountdetail extends StatefulWidget {
   const Accountdetail({super.key});
@@ -21,10 +25,22 @@ class _AccountdetailState extends State<Accountdetail> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    name.text = "Mithun Das";
-    phone.text = "9097742315";
-    email.text = "mithum@cybertize.com";
+
+    homebloc.userDetail();
+    getdata();
   }
+
+  getdata() {
+    homebloc.getUserDetail.listen((value) {
+      name.text = value.newlist[0].name!;
+      phone.text = value.newlist[0].phone_number!;
+      old_phone = value.newlist[0].phone_number!;
+      email.text = value.newlist[0].email!;
+      setState(() {});
+    });
+  }
+
+  String old_phone = "";
 
   @override
   Widget build(BuildContext context) {
@@ -268,7 +284,7 @@ class _AccountdetailState extends State<Accountdetail> {
                             height: 20,
                           ),
                           InkWell(
-                            onTap: () {
+                            onTap: () async {
                               if (name.text == "") {
                                 Fluttertoast.showToast(
                                   msg: "Please enter the name",
@@ -285,9 +301,37 @@ class _AccountdetailState extends State<Accountdetail> {
                                   msg: "Please enter the email",
                                 );
                               } else if (changed == true) {
-                                Navigator.pushNamed(context, '/otp2');
-                              } else {
-                                return;
+                                HomeApi api = HomeApi();
+                                try {
+                                  Map data = await api.updateDetail(
+                                      name: name.text,
+                                      email: email.text,
+                                      phone_number: phone.text,
+                                      phone_number_old: old_phone);
+
+                                  if (data['status'] == 200) {
+                                    // userCred.addUserId('${data['userId']}');
+                                    //  userCred.ad('${data['userId']}');
+                                    Future.delayed(const Duration(seconds: 0),
+                                        () {
+                                      // homebloc.getaddress();
+                                      Navigator.pushNamed(context, '/home');
+                                    });
+
+                                    Fluttertoast.showToast(
+                                        msg: data['message']);
+                                  } else if (data['status'] == 202) {
+                                    Navigator.pushNamed(context, '/otp2',
+                                        arguments: {
+                                          "phone_number_old": phone.text,
+                                          "user_type": "old"
+                                        });
+                                  } else {
+                                    Fluttertoast.showToast(msg: data['error']);
+                                  }
+                                } catch (e) {
+                                  log(e.toString());
+                                }
                               }
                             },
                             child: Container(

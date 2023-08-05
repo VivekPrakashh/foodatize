@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter/src/widgets/placeholder.dart';
+import 'package:foodatize/Shimmer/shimmer.dart';
+import 'package:foodatize/util/userCred.dart';
 
 class Myaccount extends StatelessWidget {
   const Myaccount({super.key});
 
   @override
   Widget build(BuildContext context) {
+    Myaccount_Shimmer();
     return Scaffold(
         backgroundColor: Color(0xffF5F5F5),
         appBar: AppBar(
@@ -177,6 +180,44 @@ class Myaccount extends StatelessWidget {
                                   'assets/cut1.png',
                                 ),
                               ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      SizedBox(
+                        height: 5,
+                      ),
+                      InkWell(
+                        onTap: () {
+                          userCred.logoutUser();
+
+                          Navigator.pushReplacementNamed(context, '/login');
+                        },
+                        child: Container(
+                          padding: EdgeInsets.all(20),
+                          height: 89,
+                          width: double.infinity,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(10),
+                            color: Colors.white,
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Logout',
+                                    style: TextStyle(
+                                        fontSize: 15,
+                                        color: Color(0xff616C71),
+                                        fontWeight: FontWeight.bold),
+                                  ),
+                                ],
+                              ),
+                              Icon(Icons.logout)
                             ],
                           ),
                         ),

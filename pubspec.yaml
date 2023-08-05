@@ -41,6 +41,7 @@ dependencies:
   http: 
   shared_preferences: ^2.2.0
   rxdart: ^0.27.7
+  geolocator: ^9.0.2
 
 dev_dependencies:
   flutter_test:

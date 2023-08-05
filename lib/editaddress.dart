@@ -1,4 +1,4 @@
-import 'dart:math';
+import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
@@ -7,16 +7,15 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:foodatize/API/homeapi.dart';
 import 'package:foodatize/Bloc/homebloc.dart';
 import 'package:foodatize/util/userCred.dart';
-import 'package:geolocator/geolocator.dart';
 
-class Addaddress extends StatefulWidget {
-  const Addaddress({super.key});
+class Editaddress extends StatefulWidget {
+  const Editaddress({super.key});
 
   @override
-  State<Addaddress> createState() => _AddaddressState();
+  State<Editaddress> createState() => _EditaddressState();
 }
 
-class _AddaddressState extends State<Addaddress> {
+class _EditaddressState extends State<Editaddress> {
   TextEditingController name = TextEditingController();
   TextEditingController phone = TextEditingController();
   TextEditingController address = TextEditingController();
@@ -24,30 +23,39 @@ class _AddaddressState extends State<Addaddress> {
   TextEditingController pin = TextEditingController();
   TextEditingController longitude = TextEditingController();
   TextEditingController latitude = TextEditingController();
-  bool isLoading = false;
+
+  getData() {
+    print("object");
+    Map rcvdData = ModalRoute.of(context)!.settings.arguments as Map;
+    Future.delayed(Duration(milliseconds: 100), () {
+      if (address.text == "") {
+        address.text = rcvdData["address"];
+        phone.text = rcvdData["recieving_person_mobile_number"];
+        landmark.text = rcvdData["landmark"];
+        pin.text = rcvdData["pincode"].toString();
+        longitude.text = rcvdData["longitude"].toString();
+        latitude.text = rcvdData["latitude"].toString();
+        name.text = rcvdData["recieving_person"];
+        id = rcvdData["id"].toString();
+        setState(() {});
+      }
+    });
+  }
+
+  String id = "";
+
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    getlocation();
   }
 
-  getlocation() async {
-    longitude.text = userCred.getLng();
-    latitude.text = userCred.getLat();
-
-    double td = await calculateDistance(
-      lat1: double.parse("23.368038"),
-      lon1: double.parse("85.2678378"),
-      lat2: double.parse(userCred.getLat()),
-      lon2: double.parse(userCred.getLng()),
-    );
-    totalDistance = td.toStringAsFixed(2);
-    print(totalDistance);
-    setState(() {});
+  @override
+  void didChangeDependencies() {
+    // TODO: implement didChangeDependencies
+    getData();
+    super.didChangeDependencies();
   }
-
-  String totalDistance = "";
 
   @override
   Widget build(BuildContext context) {
@@ -379,23 +387,28 @@ class _AddaddressState extends State<Addaddress> {
                                 Fluttertoast.showToast(
                                   msg: "Please enter the longitude",
                                 );
+                                 return;
                               } else if (longitude.text == "") {
                                 Fluttertoast.showToast(
                                   msg: "Please enter the longitude",
                                 );
+                                 return;
                               } else if (latitude.text == "") {
                                 Fluttertoast.showToast(
                                   msg: "Please enter the latitude",
                                 );
+                                 return;
                               } else if (pin.text.length != 6 ||
                                   pin.text == "") {
                                 Fluttertoast.showToast(
                                   msg: "Please enter the correct pin",
                                 );
+                                 return;
                               } else if (name.text == "") {
                                 Fluttertoast.showToast(
                                   msg: "Please enter the name",
                                 );
+                                 return;
                               } else if (phone.text.length != 10 ||
                                   phone.text == "") {
                                 Fluttertoast.showToast(
@@ -403,39 +416,32 @@ class _AddaddressState extends State<Addaddress> {
                                 );
                                 return;
                               }
-                              setState(() {
-                                bool isLoading = true;
-                              });
                               HomeApi api = HomeApi();
-                              Map data = await api.addAddress(
-                                  longitude: longitude.text,
-                                  latitude: latitude.text,
-                                  full_address: address.text,
-                                  landmark: landmark.text,
-                                  km: totalDistance,
-                                  recieving_person: name.text,
-                                  pincode: int.parse(pin.text),
-                                  recieving_person_mobile_number: phone.text);
-                              if (data['status'] == 200) {
-                                setState(() {
-                                  bool isLoading = false;
-                                });
-                                // userCred.addUserId('${data['userId']}');
-                                //  userCred.ad('${data['userId']}');
-                                Future.delayed(const Duration(seconds: 0), () {
-                                  homebloc.getaddress();
-                                  Navigator.pop(context);
-                                });
+                              try {
+                                Map data = await api.updateAddress(
+                                    id: int.parse(id),
+                                    longitude: longitude.text,
+                                    latitude: latitude.text,
+                                    full_address: address.text,
+                                    landmark: landmark.text,
+                                    recieving_person: name.text,
+                                    pincode: int.parse(pin.text),
+                                    recieving_person_mobile_number: phone.text);
+                                if (data['status'] == 200) {
+                                  // userCred.addUserId('${data['userId']}');
+                                  //  userCred.ad('${data['userId']}');
+                                  Future.delayed(const Duration(seconds: 0),
+                                      () {
+                                    homebloc.getaddress();
+                                    Navigator.pop(context);
+                                  });
 
-                                Fluttertoast.showToast(msg: data['message']);
-                              } else {
-                                setState(() {
-                                  bool isLoading = false;
-                                });
-                                Fluttertoast.showToast(msg: data['error']);
-                                setState(() {
-                                  bool isLoading = false;
-                                });
+                                  Fluttertoast.showToast(msg: data['message']);
+                                } else {
+                                  Fluttertoast.showToast(msg: data['error']);
+                                }
+                              } catch (e) {
+                                log(e.toString());
                               }
                             },
                             child: Container(
@@ -447,7 +453,7 @@ class _AddaddressState extends State<Addaddress> {
                               child: Align(
                                   alignment: Alignment.center,
                                   child: Text(
-                                    'Save Address',
+                                    'Update',
                                     style: TextStyle(
                                         fontSize: 17,
                                         color: Colors.white,
@@ -455,35 +461,10 @@ class _AddaddressState extends State<Addaddress> {
                                   )),
                             ),
                           ),
-                          SizedBox(
-                            height: 20,
-                          ),
-                          isLoading == true
-                              ? Align(
-                                  alignment: Alignment.center,
-                                  child: const SizedBox(
-                                    height: 15,
-                                    width: 15,
-                                    child: CircularProgressIndicator(
-                                      color: Color(0xff23AF00),
-                                      strokeWidth: 3,
-                                    ),
-                                  ),
-                                )
-                              : Container()
                         ])),
               ],
             ),
           ),
         ));
   }
-}
-
-double calculateDistance({lat1, lon1, lat2, lon2}) {
-  var p = 0.017453292519943295;
-  var c = cos;
-  var a = 0.5 -
-      c((lat2 - lat1) * p) / 2 +
-      c(lat1 * p) * c(lat2 * p) * (1 - c((lon2 - lon1) * p)) / 2;
-  return 12742 * asin(sqrt(a));
 }

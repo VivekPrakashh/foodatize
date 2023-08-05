@@ -19,5 +19,59 @@ class HomeRepo {
     return SearchModal(jsonResponse);
   }
 
+   Future<GetcartModel> getToCart() async {
+    final response = await homeApi.getToCart();
+    var jsonResponse = jsonDecode(response.body) as Map;
+    
+    return GetcartModel(jsonResponse);
+  }
+
+   Future<GetAddressModal> getaddress() async {
+    final response = await homeApi.getaddress();
+    var jsonResponse = jsonDecode(response.body) as Map;
+    
+    return GetAddressModal(jsonResponse);
+  }
+
+
+  Future<CheckoutModal> checkOut(id) async {
+    final response = await homeApi.checkOut(address_id: id);
+    var jsonResponse = jsonDecode(response.body) as Map;
+    
+    return CheckoutModal(jsonResponse);
+  }
+
+
+  Future<OrderHistoryModal> orderHistory() async {
+    final response = await homeApi.orderHistory();
+    var jsonResponse = jsonDecode(response.body) as Map;
+    
+    return OrderHistoryModal(jsonResponse);
+  }
+
+
+   Future<OrderDetailModal> getOrderDetail(id) async {
+    final response = await homeApi.getOrderDetail(id);
+    var jsonResponse = jsonDecode(response.body) as Map;
+    
+    return OrderDetailModal(jsonResponse);
+  }
+
+
+Future<UserDetailModal> userDetail() async {
+    final response = await homeApi.userDetail();
+    var jsonResponse = jsonDecode(response.body) as Map;
+    
+    return UserDetailModal(jsonResponse);
+  }
+
+
+  Future<UpdateDetailModal> updateDetail() async {
+    final response = await homeApi.updateDetail();
+    var jsonResponse = jsonDecode(response.body) as Map;
+    
+    return UpdateDetailModal(jsonResponse);
+  }
+
   
 }

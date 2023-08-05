@@ -14,6 +14,7 @@ class Signup extends StatefulWidget {
 class _SignupState extends State<Signup> {
   TextEditingController name = TextEditingController();
   TextEditingController email = TextEditingController();
+  bool isLoading = false;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -165,19 +166,32 @@ class _SignupState extends State<Signup> {
                   );
                   return;
                 }
+                setState(() {
+                  bool isLoading = true;
+                });
                 Callapi api = Callapi();
                 Map data =
                     await api.saveinfo(name: name.text, email: email.text);
                 if (data['status'] == 200) {
+                  setState(() {
+                    isLoading = false;
+                  });
                   // userCred.addUserId('${data['userId']}');
                   //  userCred.ad('${data['userId']}');
+
                   Future.delayed(const Duration(seconds: 0), () {
                     Navigator.pushReplacementNamed(context, "/home");
                   });
 
-                  Fluttertoast.showToast(msg: data['message']);
+                  Fluttertoast.showToast(msg: data['massage']);
                 } else {
+                  setState(() {
+                    isLoading = false;
+                  });
                   Fluttertoast.showToast(msg: data['error']);
+                  setState(() {
+                    isLoading = false;
+                  });
                 }
               },
               child: Container(
@@ -194,7 +208,23 @@ class _SignupState extends State<Signup> {
                           fontWeight: FontWeight.bold),
                     )),
               ),
-            )
+            ),
+            SizedBox(
+              height: 20,
+            ),
+            isLoading == true
+                ? Align(
+                    alignment: Alignment.center,
+                    child: const SizedBox(
+                      height: 15,
+                      width: 15,
+                      child: CircularProgressIndicator(
+                        color: Color(0xff23AF00),
+                        strokeWidth: 3,
+                      ),
+                    ),
+                  )
+                : Container()
           ],
         ),
       ),

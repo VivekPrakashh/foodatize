@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter/src/widgets/placeholder.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:foodatize/API/api.dart';
 import 'package:pinput/pinput.dart';
 
 class Otp2 extends StatefulWidget {
@@ -24,7 +26,14 @@ class _Otp2State extends State<Otp2> {
     ),
   );
   @override
+  TextEditingController otp = TextEditingController();
+
+  bool isLoading = false;
+  bool isOtpLoading = false;
+  String phone = "";
   Widget build(BuildContext context) {
+    final Map rcvdData = ModalRoute.of(context)!.settings.arguments as Map;
+
     return Scaffold(
       backgroundColor: Color(0xffF5F5F5),
       appBar: AppBar(
@@ -108,6 +117,7 @@ class _Otp2State extends State<Otp2> {
               height: 30,
             ),
             Pinput(
+              controller: otp,
               length: 5,
               defaultPinTheme: defaultPinTheme,
               autofocus: true,
@@ -142,8 +152,35 @@ class _Otp2State extends State<Otp2> {
               height: 20,
             ),
             InkWell(
-              onTap: () {
-                Navigator.pushNamed(context, '/signup');
+              onTap: () async {
+                if (otp.text.length != 5 || otp.text.contains(" ")) {
+                  Fluttertoast.showToast(
+                    msg: "Please enter 5 digit OTP",
+                    backgroundColor: Colors.red,
+                    textColor: Colors.white,
+                  );
+                  return;
+                }
+
+                setState(() {
+                  isOtpLoading = true;
+                });
+                Callapi api = Callapi();
+                Map data = await api.checkLoginOtp(
+                    otp: otp.text, phone: rcvdData["phone_number_old"]);
+                if (data['status'] == 200) {
+                  Future.delayed(const Duration(seconds: 0), () {
+                    Navigator.pushReplacementNamed(context, "/home");
+                  });
+
+                  Fluttertoast.showToast(msg: data['massage']);
+                } else {
+                  Fluttertoast.showToast(msg: data['error']);
+
+                  setState(() {
+                    isOtpLoading = false;
+                  });
+                }
               },
               child: Container(
                 height: 40,

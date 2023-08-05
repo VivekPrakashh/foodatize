@@ -177,7 +177,21 @@ class _LoginState extends State<Login> {
                           fontWeight: FontWeight.bold),
                     )),
               ),
-            )
+            ),
+            SizedBox(height: 20,),
+             isLoading == true
+                          ? Align(
+                            alignment: Alignment.center,
+                            child: const SizedBox(
+                                height: 15,
+                                width: 15,
+                                child: CircularProgressIndicator(
+                                  color:  Color(0xff23AF00),
+                                  strokeWidth: 3,
+                                ),
+                              ),
+                          )
+                          : Container()
           ],
         ),
       ),
